@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">TODO App</string>
+    <string name="et_hint">Wprowadź zadanie</string>
+    <string name="cb_important_task">Ważne zadanie</string>
+
+    <string-array name="categories_of_task">
+        <item>Praca</item>
+        <item>Zakupy</item>
+        <item>Inne</item>
+    </string-array>
+</resources>
