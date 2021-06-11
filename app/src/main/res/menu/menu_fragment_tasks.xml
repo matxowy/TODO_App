@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--
+    poprzez actionViewClass ustawiamy to by po kliknięciu
+    w ikonkę rozszerzała się by móc wpisywać frazę
+    showAsAction - ustawia ikonkę na toolbarze
+    -->
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Szukaj"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always" />
+
+    <item
+        android:icon="@drawable/ic_sort"
+        android:title="Sortuj"
+        app:showAsAction="always">
+
+        <menu>
+
+            <item
+                android:id="@+id/action_sory_by_name"
+                android:title="Sortuj poprzez nazwę" />
+
+            <item
+                android:id="@+id/action_sory_by_date_created"
+                android:title="Sortuj poprzez datę utworzenia" />
+
+        </menu>
+
+    </item>
+
+    <!--
+    showAsAction ustawione na never ukrywa item i dopiero po kliknięciu w kropki
+    można się do niego dostać
+    -->
+    <item
+        android:id="@+id/action_hide_completed_tasks"
+        android:checkable="true"
+        android:title="Ukryj ukończone"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_completed_tasks"
+        android:title="Usuń ukończone"
+        app:showAsAction="never" />
+
+
+
+
+</menu>
