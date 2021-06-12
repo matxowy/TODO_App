@@ -1,7 +1,6 @@
 package com.matxowy.todoapp.data
 
 import androidx.room.*
-import com.matxowy.todoapp.ui.tasks.SortOrder
 import kotlinx.coroutines.flow.Flow
 
 //intefejs w którym definiujemy metody potrzebne do bazy danych, nie musimy implementować podstawowych bo robi to za nas biblioteka room wystarczy dodać adnotację
@@ -11,7 +10,7 @@ interface TaskDao {
     fun getTasks(query: String, sortOrder: SortOrder, hideCompleted: Boolean) : Flow<List<Task>> =
         when(sortOrder) {
             SortOrder.BY_DATE -> getTasksSortedByDateCreated(query, hideCompleted)
-            SortOrder.BY_NAME -> getTasksSortedByDateCreated(query, hideCompleted)
+            SortOrder.BY_NAME -> getTasksSortedByName(query, hideCompleted)
         }
 
     /*(completed != :hideCompleted OR completed = 0) - jeżeli jest coś ukończone i nie mamy ustawione żeby to ukrywać to wyszukujemy w bazie danych,
