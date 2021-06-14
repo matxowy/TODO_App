@@ -23,6 +23,10 @@ interface TaskDao {
     @Query("SELECT * FROM task_table WHERE (completed != :hideCompleted OR completed = 0) AND name LIKE '%' || :searchQuery || '%' ORDER BY important DESC, created")
     fun getTasksSortedByDateCreated(searchQuery: String, hideCompleted: Boolean): Flow<List<Task>>
 
+    // zapytanie służące do usuwania zakończonych zadań
+    @Query("DELETE FROM task_table WHERE completed = 1")
+    suspend fun deleteCompletedTasks()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(task: Task) //funkcja do wstawiania do bazy danych, oznaczona jako suspend bo dzięki temu może działać na innym wątku(room nie pozwala nam na operacje na głównym wątku)
 

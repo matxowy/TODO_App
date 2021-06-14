@@ -7,8 +7,10 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +19,7 @@ import com.matxowy.todoapp.R
 import com.matxowy.todoapp.data.SortOrder
 import com.matxowy.todoapp.data.Task
 import com.matxowy.todoapp.databinding.FragmentTasksBinding
+import com.matxowy.todoapp.util.exhaustive
 import com.matxowy.todoapp.util.onQueryTextChanged
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -27,6 +30,8 @@ import kotlinx.coroutines.launch
 class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClickListener {
 
     private val viewModel: TasksViewModel by viewModels()
+
+    private lateinit var searchView: SearchView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -57,6 +62,15 @@ class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
                     viewModel.onTaskSwiped(task)
                 }
             }).attachToRecyclerView(recyclerViewTasks) // załączamy możliwość swipeowania do recyclerView
+
+            fabAddTask.setOnClickListener {
+                viewModel.onAddNewTaskClick()
+            }
+        }
+
+        setFragmentResultListener("add_edit_request") { _, bundle -> // ustawiamy nasłuchiwanie na FragmentResult pod kluczem "add_edit_request" i gdy taki dostaniemy wykonujemy poniższy kod
+            val result = bundle.getInt("add_edit_result") // zapisujemy rezultat z przekazanego bundle
+            viewModel.onAddEditResult(result) // odelegowujemy do viewModelu wykonanie czynności z rezultatem
         }
 
         viewModel.tasks.observe(viewLifecycleOwner) { // obserwujemy zmiany w bazie danych i jak zostanie dokonana jakaś zmiana
@@ -72,7 +86,22 @@ class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
                                 viewModel.onUndoDeleteClick(event.task)                             // wywołujemy funckję w viewModel, która przywróci nam zadanie przekazane w parametrze
                             }.show()
                     }
-                }
+                    is TasksViewModel.TasksEvent.NavigateToAddTaskScreen -> {
+                        val action = TasksFragmentDirections.actionTasksFragmentToAddEditTaskFragment(null, "Nowe zadanie") // actionTasksFragmentToAddEditTaskFragment funkcja wygenerowana automatyczne po zaznaczeniu nawigacji w nav_graph
+                        findNavController().navigate(action) // kod odpowiadający za przenoszenie nas do odpowiedniego fragmentu
+                    }
+                    is TasksViewModel.TasksEvent.NavigateToEditTaskScreen -> {
+                        val action = TasksFragmentDirections.actionTasksFragmentToAddEditTaskFragment(event.task, "Edycja zadania") // w fragmencie do edytowania w parametrze przekazujemy zadanie edytowane
+                        findNavController().navigate(action) // kod odpowiadający za przenoszenie nas do odpowiedniego fragmentu
+                    }
+                    is TasksViewModel.TasksEvent.ShowTaskSavedConfirmationMessage -> {
+                        Snackbar.make(requireView(), event.msg, Snackbar.LENGTH_SHORT).show()
+                    }
+                    TasksViewModel.TasksEvent.NavigateToDeleteAllCompletedScreen -> {
+                        val action = TasksFragmentDirections.actionGlobalDeleteAllCompletedDialogFragment() // definiujemy akcję pokazania dialogu
+                        findNavController().navigate(action) // przechodzimy do zdefiniowanego fragmentu
+                    }
+                }.exhaustive // zamienia when w wyrażenie
             }
         }
 
@@ -84,7 +113,13 @@ class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
 
         // przygotowania do tego by można było wyszukiwać zadania
         val searchIteam = menu.findItem(R.id.action_search)
-        val searchView = searchIteam.actionView as SearchView
+        searchView = searchIteam.actionView as SearchView
+
+        val pendingQuery = viewModel.searchQuery.value // zapisujemy w zmiennej aktualnie wyszukiwaną frazę
+        if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+            searchIteam.expandActionView()
+            searchView.setQuery(pendingQuery, false) // wrzucamy do wyszukiwarki naszą frazę
+        }
 
         searchView.onQueryTextChanged { // w it który jest stringiem dostajemy to co jest wpisywane w polu szukania
             viewModel.searchQuery.value = it
@@ -112,7 +147,7 @@ class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
                 true
             }
             R.id.action_delete_completed_tasks -> {
-
+                viewModel.onDeleteAllCompletedClick()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -126,5 +161,10 @@ class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
 
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
         viewModel.onTaskCheckedChanged(task, isChecked)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        searchView.setOnQueryTextListener(null) // usuwamy listener dzięki czemu przy niszczeniu nie wysyła nam niepotrzebnego pustego stringa do zmiennej
     }
 }
