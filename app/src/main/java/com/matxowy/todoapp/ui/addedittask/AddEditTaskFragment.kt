@@ -62,6 +62,10 @@ class AddEditTaskFragment : Fragment(R.layout.fragment_add_edit_task) {
             fabSaveTask.setOnClickListener {
                 viewModel.onSaveClick()
             }
+
+            fabCloseAddTaskFragment.setOnClickListener {
+                viewModel.onCancelClick()
+            }
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -77,6 +81,10 @@ class AddEditTaskFragment : Fragment(R.layout.fragment_add_edit_task) {
                     }
                     is AddEditTaskViewModel.AddEditTaskEvent.ShowInvalidInputMessage -> {
                         Snackbar.make(requireView(), event.msg, Snackbar.LENGTH_LONG).show() // pokazujemy snackbara z informacją o braku nazwy
+                    }
+                    is AddEditTaskViewModel.AddEditTaskEvent.NavigateBack -> {
+                        binding.editTextTaskName.clearFocus() // zamykamy klawiaturę po cofnięciu
+                        findNavController().popBackStack() // usuwa ten fragment z backStacku i wraca do poprzedniego
                     }
                 }.exhaustive
             }

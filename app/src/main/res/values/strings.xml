@@ -2,6 +2,7 @@
     <string name="app_name">TODO App</string>
     <string name="et_hint">Wprowadź zadanie</string>
     <string name="cb_important_task">Ważne zadanie</string>
+    <string name="tv_message_add_task">Dodaj swoje pierwsze zadanie!</string>
 
     <string-array name="categories_of_task">
         <item>Praca</item>

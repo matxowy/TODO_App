@@ -67,6 +67,10 @@ class AddEditTaskViewModel @ViewModelInject constructor(
         }
     }
 
+    fun onCancelClick() = viewModelScope.launch {
+        addEditTaskEventChannel.send(AddEditTaskEvent.NavigateBack)
+    }
+
     private fun showInvalidInputMessage(msg: String) = viewModelScope.launch {
         addEditTaskEventChannel.send(AddEditTaskEvent.ShowInvalidInputMessage(msg)) // przesyłamy poprzez channel informację do fragmentu o wyświetleniu komunikatu
     }
@@ -82,6 +86,7 @@ class AddEditTaskViewModel @ViewModelInject constructor(
     }
 
     sealed class AddEditTaskEvent {
+        object NavigateBack : AddEditTaskEvent()
         data class ShowInvalidInputMessage(val msg: String) : AddEditTaskEvent()
         data class NavigateBackWithResult(val result: Int) : AddEditTaskEvent()
     }

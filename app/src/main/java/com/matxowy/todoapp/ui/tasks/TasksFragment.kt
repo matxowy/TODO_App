@@ -6,6 +6,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -22,6 +23,7 @@ import com.matxowy.todoapp.databinding.FragmentTasksBinding
 import com.matxowy.todoapp.util.exhaustive
 import com.matxowy.todoapp.util.onQueryTextChanged
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.fragment_tasks.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -46,6 +48,8 @@ class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
                 layoutManager = LinearLayoutManager(requireContext()) // ustawiamy layoutManager na liniowy layout
                 setHasFixedSize(true) // w celu optymalizacji
             }
+
+            viewModel.onNoTasksToShow() // jeżeli nie ma wpisanych jeszcze żadnych zadań przy starcie aplikacji włącza widoczność komunikatu o dodaniu pierwszego zadania
 
             ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, // 0 bo nie chcemy obsługiwać drag and drop akcji
             ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
@@ -75,6 +79,7 @@ class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
 
         viewModel.tasks.observe(viewLifecycleOwner) { // obserwujemy zmiany w bazie danych i jak zostanie dokonana jakaś zmiana
             taskAdapter.submitList(it)                // wyowołujemy submitList, która zajmie się kalkulowaniem zmian ze starej listy
+            viewModel.onNoTasksToShow()               // jeżeli usuniemy wszystkie elementy z bazy danych to chcemy pokazać komunikat o dodaniu pierwszego zadania
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted { // launchWhenStared pozwoli odpalać tylko snackbara gdy tasksFragment będzie na przodzie
@@ -97,9 +102,12 @@ class TasksFragment: Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClick
                     is TasksViewModel.TasksEvent.ShowTaskSavedConfirmationMessage -> {
                         Snackbar.make(requireView(), event.msg, Snackbar.LENGTH_SHORT).show()
                     }
-                    TasksViewModel.TasksEvent.NavigateToDeleteAllCompletedScreen -> {
+                    is TasksViewModel.TasksEvent.NavigateToDeleteAllCompletedScreen -> {
                         val action = TasksFragmentDirections.actionGlobalDeleteAllCompletedDialogFragment() // definiujemy akcję pokazania dialogu
                         findNavController().navigate(action) // przechodzimy do zdefiniowanego fragmentu
+                    }
+                    is TasksViewModel.TasksEvent.ShowMessageAboutAddFirstTask -> {
+                        message_add_task.isVisible = event.shouldShow // ustawiamy widoczność w zależności od tego co przekazał viewModel
                     }
                 }.exhaustive // zamienia when w wyrażenie
             }

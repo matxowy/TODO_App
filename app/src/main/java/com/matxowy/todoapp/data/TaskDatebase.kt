@@ -21,7 +21,7 @@ abstract class TaskDatebase : RoomDatabase() { // klasa jest abstrakcyjna bo bil
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
 
-            val taskDao = database.get().taskDao() //pobieramy z naszej provide database metodę taskDao i dajemy do funkcji by się nią posługiwać
+            /*val taskDao = database.get().taskDao() //pobieramy z naszej provide database metodę taskDao i dajemy do funkcji by się nią posługiwać
 
             applicationScope.launch {
                 taskDao.insert(Task("Napisać projekt", "Praca", important = true))
@@ -30,7 +30,7 @@ abstract class TaskDatebase : RoomDatabase() { // klasa jest abstrakcyjna bo bil
                 taskDao.insert(Task("Przygotować obiad", "Inne", completed = true))
                 taskDao.insert(Task("Umyć naczynia", "Inne", completed = true))
                 taskDao.insert(Task("Zadzwonić do prezesa", "Praca"))
-            }
+            }*/
         }
     }
 }

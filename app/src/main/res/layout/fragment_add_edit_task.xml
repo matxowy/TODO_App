@@ -51,6 +51,15 @@
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_close_add_task_fragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="15dp"
+        android:backgroundTint="@color/fab_red"
+        android:src="@drawable/ic_close" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_save_task"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

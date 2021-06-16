@@ -40,6 +40,11 @@ class TasksViewModel @ViewModelInject constructor(
 
     val tasks = tasksFlow.asLiveData() // z naszego interfejsu pobieramy metodą getTask() listę tasków
 
+    fun onNoTasksToShow() = viewModelScope.launch { // getAllTasks jest suspend fun dlatego musimy to odpalić w viewModelScope
+        val allTasks = taskDao.getAllTasks() // pobieramy do zmiennej wszystkie zadania
+        tasksEventChannel.send(TasksEvent.ShowMessageAboutAddFirstTask(allTasks.isEmpty())) // przekazujemy do fragmentu wartość logiczną o tym czy baza danych jest pusta(czyli nasza lista zadan) czy jest w nim jakaś wartość
+    }
+
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch { // updateSortOrder jest suspend fun dlatego musimy to odpalić w viewModelScope
         preferencesRepository.updateSortOrder(sortOrder)
     }
@@ -87,6 +92,7 @@ class TasksViewModel @ViewModelInject constructor(
     sealed class TasksEvent {
         object NavigateToAddTaskScreen : TasksEvent() // tworzymy typ object bo nie musimy tu nic przekazywać
         object NavigateToDeleteAllCompletedScreen : TasksEvent()
+        data class ShowMessageAboutAddFirstTask(val shouldShow: Boolean) : TasksEvent()
         data class NavigateToEditTaskScreen(val task: Task) : TasksEvent() // klasa, ponieważ przekazujemy parametr
         data class ShowUndoDeleteTaskMessage(val task: Task) : TasksEvent()
         data class ShowTaskSavedConfirmationMessage(val msg: String) : TasksEvent()
