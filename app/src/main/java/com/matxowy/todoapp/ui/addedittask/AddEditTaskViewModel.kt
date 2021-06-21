@@ -13,6 +13,7 @@ import com.matxowy.todoapp.ui.EDIT_TASK_RESULT_OK
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.sql.SQLException
 
 class AddEditTaskViewModel @ViewModelInject constructor(
     private val taskDao: TaskDao,
@@ -76,17 +77,26 @@ class AddEditTaskViewModel @ViewModelInject constructor(
     }
 
     private fun createTask(task: Task) = viewModelScope.launch {
-        taskDao.insert(task) // tworzymy nowe zadanie w bazie danych
-        addEditTaskEventChannel.send(AddEditTaskEvent.NavigateBackWithResult(ADD_TASK_RESULT_OK)) // przesyłamy rezultat o udanym dodaniu
+        try {
+            taskDao.insert(task) // tworzymy nowe zadanie w bazie danych
+            addEditTaskEventChannel.send(AddEditTaskEvent.NavigateBackWithResult(ADD_TASK_RESULT_OK)) // przesyłamy rezultat o udanym dodaniu
+        } catch (e: SQLException) {
+            addEditTaskEventChannel.send(AddEditTaskEvent.NavigateToAddEditTaskFailedScreen(task))
+        }
     }
 
     private fun updateTask(task: Task) = viewModelScope.launch {
-        taskDao.update(task) // aktualizujemy zadanie w bazie
-        addEditTaskEventChannel.send(AddEditTaskEvent.NavigateBackWithResult(EDIT_TASK_RESULT_OK)) // przesyłamy rezultat o udanym edytowaniu
+        try {
+            taskDao.update(task) // aktualizujemy zadanie w bazie
+            addEditTaskEventChannel.send(AddEditTaskEvent.NavigateBackWithResult(EDIT_TASK_RESULT_OK)) // przesyłamy rezultat o udanym edytowaniu
+        } catch (e: SQLException) {
+            addEditTaskEventChannel.send(AddEditTaskEvent.NavigateToAddEditTaskFailedScreen(task))
+        }
     }
 
     sealed class AddEditTaskEvent {
         object NavigateBack : AddEditTaskEvent()
+        data class NavigateToAddEditTaskFailedScreen(val task: Task) : AddEditTaskEvent()
         data class ShowInvalidInputMessage(val msg: String) : AddEditTaskEvent()
         data class NavigateBackWithResult(val result: Int) : AddEditTaskEvent()
     }

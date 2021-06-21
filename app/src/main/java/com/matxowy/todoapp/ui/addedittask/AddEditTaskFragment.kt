@@ -86,6 +86,10 @@ class AddEditTaskFragment : Fragment(R.layout.fragment_add_edit_task) {
                         binding.editTextTaskName.clearFocus() // zamykamy klawiaturę po cofnięciu
                         findNavController().popBackStack() // usuwa ten fragment z backStacku i wraca do poprzedniego
                     }
+                    is AddEditTaskViewModel.AddEditTaskEvent.NavigateToAddEditTaskFailedScreen -> {
+                        val action = AddEditTaskFragmentDirections.actionGlobalAddEditTaskFailedDialogFragment(event.task) // przekazujemy w parametrze zadanie
+                        findNavController().navigate(action) // odpalamy dialog
+                    }
                 }.exhaustive
             }
         }

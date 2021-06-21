@@ -32,4 +32,13 @@
         android:id="@+id/deleteAllCompletedDialogFragment"
         android:name="com.matxowy.todoapp.ui.deleteallcompleted.DeleteAllCompletedDialogFragment"
         android:label="DeleteAllCompletedDialogFragment" /><action android:id="@+id/action_global_deleteAllCompletedDialogFragment" app:destination="@id/deleteAllCompletedDialogFragment"/>
+    <dialog
+        android:id="@+id/addEditTaskFailedDialogFragment"
+        android:name="com.matxowy.todoapp.ui.addedittaskfail.AddEditTaskFailedDialogFragment"
+        android:label="AddEditTaskFailedDialogFragment" >
+        <argument
+            android:name="sent_task"
+            app:argType="com.matxowy.todoapp.data.Task" />
+    </dialog>
+    <action android:id="@+id/action_global_addEditTaskFailedDialogFragment" app:destination="@id/addEditTaskFailedDialogFragment" />
 </navigation>
