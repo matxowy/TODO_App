@@ -35,7 +35,7 @@ To Do App which allows you to:
 
 - Slide task for delete
 
-![delete task](https://user-images.githubusercontent.com/65039984/139674431-feed6833-77dc-4f05-a624-7173fe078627.gif)
+<img src="https://user-images.githubusercontent.com/65039984/139674431-feed6833-77dc-4f05-a624-7173fe078627.gif" width="377" height="684">
 
 
 
